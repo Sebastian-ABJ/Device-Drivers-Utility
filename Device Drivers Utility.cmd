@@ -3,7 +3,7 @@ cls
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
 @echo	---        		   	Drivers Helper			      ---
-@echo	---          		  	(Ver. 1.5)           	      	 ---
+@echo	---          		  	(Ver. 1.6)           	      	 ---
 @echo	---    			   Made by Sebastian Jones     		     ---
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
@@ -63,10 +63,8 @@ timeout /nobreak 1 > NUL
 @echo -------------------------------------------------------------------------------
 @echo.
 @echo Export process completed. See above log for details.
-set /p reboot=Would you like to shutdown now?
-if %reboot% (
-	shutdown /s -t 0
-)
+set /p reboot=Press Enter to shut down.
+shutdown /s -t 0
 goto :end
 
 
@@ -95,8 +93,8 @@ DISM /Image:%destVol%:\ /Add-Driver /Driver:%cd%Drivers /Recurse
 
 @echo -------------------------------------------------------------------------------
 @echo .
-@echo Driver installation process completed. Rebooting...
-
+@echo Driver installation process completed. See above log for details.
+set /p reboot=Press Enter to reboot.
 shutdown /r -t 0
 
 goto :end
