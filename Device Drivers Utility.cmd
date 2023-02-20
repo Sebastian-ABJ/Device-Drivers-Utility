@@ -2,27 +2,31 @@ cls
 @pushd %~dp0
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
-@echo	---        		   	Drivers Helper			      ---
-@echo	---          		  	(Ver. 1.6)           	      	 ---
-@echo	---    			   Made by Sebastian Jones     		     ---
+@echo	---        		   Device Drivers Utility		       ---
+@echo	---          		  	(Ver. 1.9.0)           	       	       ---
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
 @echo.
 @echo.
 @echo off
 
-:isAdmin
-fsutil dirty query %systemdrive% >nul
-if %errorlevel% == 0 goto :NextStep
-@echo	You must run this tool as an Administrator. Press any key to exit...
-pause > nul
-exit
+:: Get Administrator Rights
+set _Args=%*
+if "%~1" NEQ "" (
+  set _Args=%_Args:"=%
+)
+fltmc 1>nul 2>nul || (
+  cd /d "%~dp0"
+  cmd /u /c echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/k cd ""%~dp0"" && ""%~dpnx0"" ""%_Args%""", "", "runas", 1 > "%temp%\GetAdmin.vbs"
+  "%temp%\GetAdmin.vbs"
+  del /f /q "%temp%\GetAdmin.vbs" 1>nul 2>nul
+  exit
+)
 
 :NextStep
-@echo.
-@echo Are you exporting or importing drivers?
-@echo 1. Exporting
-@echo 2. Importing
+@echo What process are you performing?
+@echo 1. Exporting drivers from currently running Windows to this USB.
+@echo 2. Installing drivers from this USB to an offline Windows install.
 set /p choice=Enter a selection: 
 
 if NOT %choice% == 1 ( 
@@ -36,33 +40,33 @@ if %choice% == 2 goto :import
 @echo -------------------------------------------------------------------------------
 @echo Beginning export process.
 timeout /nobreak 1 > NUL
-@echo Creating %cd%Drivers\ ...
+@echo Creating destination folder at %cd%\Drivers\
 timeout /nobreak 1 > NUL
 @echo.
-if exist %cd%Drivers (
-	@echo Existing Drivers folder found on USB. Would you like to remove?
-	rmdir /s %cd%Drivers
+if exist %cd%\Drivers (
 	@echo.
-	@echo Deleting existing drivers. This may take a few minutes...
+	@echo Removing existing drivers. This process may take a few minutes...
+	rmdir /s /q %cd%\Drivers > nul
+	@echo.
+	@echo Done!
 )
-if exist %cd%Drivers (
+if exist %cd%\Drivers (
 	goto :eof
 )
 
-
-mkdir %cd%Drivers
+mkdir %cd%\Drivers
 
 @echo Destination folder created.
 timeout /nobreak 1 > NUL
+
 @echo. 
 @echo Exporting drivers...
 
-DISM /online /export-driver /destination:%cd%Drivers
+DISM /online /export-driver /destination:%cd%\Drivers
 
-timeout /nobreak 1 > NUL
 @echo -------------------------------------------------------------------------------
 @echo.
-@echo Export process completed. See above log for details.
+@echo Export completed! See above log for details.
 set /p reboot=Press Enter to shut down.
 shutdown /s -t 0
 goto :end
@@ -71,10 +75,9 @@ goto :end
 :import
 @echo -------------------------------------------------------------------------------
 @echo Beginning import process.
-@echo After the process is completed, the system will reboot automatically.
 @echo.
-timeout /nobreak 1 > NUL
-set /p destVol=Please specify the TARGET volume drive letter:
+
+set /p destVol=Please specify the TARGET volume drive letter: 
 
 CALL :UpCase destVol
 
@@ -87,17 +90,14 @@ if NOT %confirm% == Y (
 
 @echo.
 @echo Installing drivers from %cd%\Drivers...
-timeout /nobreak 1 > NUL
 
-DISM /Image:%destVol%:\ /Add-Driver /Driver:%cd%Drivers /Recurse
+DISM /Image:%destVol%:\ /Add-Driver /Driver:%cd%\Drivers /Recurse
 
 @echo -------------------------------------------------------------------------------
-@echo .
-@echo Driver installation process completed. See above log for details.
-set /p reboot=Press Enter to reboot.
-shutdown /r -t 0
+@echo.
+@echo Installation completed! See above log for details.
 
-goto :end
+goto end
 
 :UpCase
 if not defined %~1 exit /b
