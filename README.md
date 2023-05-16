@@ -2,13 +2,14 @@
 Helps to facilitate driver management between different devices.
 
 How To Use:
-1. Run this software from an external storage device connected to the operating system on the device
-    you wish to clone to.
-2. Ensure all Microsoft accounts are removed/disabled from the device you wish to clone from.
-3. Perform the clone from whichever software you prefer.
-4. Run this software again, selecting the "import" option and targetting the newly cloned drive.
-5. Boot to the cloned device. Be sure to rename the PC before performing any action.
-6. Upgrade Windows to a compatible version if device was originally on a newer version.
+1. Boot the PC you wish to clone to. You will need a functioning OS with all necessary drivers
+    installed.
+2. Connect the source drive to the new device using your preferred method.
+3. Run this script, following the prompts.
+4. Perform the clone using your preferred cloning software. 
+5. Install your new drive and everything should boot normally.
+5a.Use my Skeleton Key script to remove any passwords/Microsoft Accounts that may have carried
+    over and no longer allow access.
 
 From the author:
     Yes I know the subject of cloning an operating system between two completely different devices
@@ -17,4 +18,4 @@ From the author:
 
     That said, it should be communicated that using this tool can carry a significant amount of risk
     and to always back up important data first. Expect to clean install Windows should any
-    unforseen incompatibilities prevent the use of this tool and/or render the target device inoperable.
+    unforseen incompatibilities prevent the use of this tool.

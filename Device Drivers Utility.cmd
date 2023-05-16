@@ -3,12 +3,11 @@ cls
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
 @echo	---        		   Device Drivers Utility		       ---
-@echo	---          		  	(Ver. 1.9.0)           	       	       ---
+@echo	---          		  	(Ver. 2.0.0)           	       	       ---
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
-@echo 	---	  This software is licensed under the Mozilla Public License 2.0   ---
+@echo	---   This software is licensed under the Mozilla Public License 2.0   ---
 @echo	--------------------------------------------------------------------------
-@echo.
 @echo.
 @echo off
 
@@ -25,18 +24,19 @@ fltmc 1>nul 2>nul || (
   exit
 )
 
-:NextStep
-@echo What process are you performing?
-@echo 1. Exporting drivers from currently running Windows to this USB.
-@echo 2. Installing drivers from this USB to an offline Windows install.
-set /p choice=Enter a selection: 
+:begin
+wmic logicaldisk get name,volumename,filesystem
 
-if NOT %choice% == 1 ( 
-	if NOT %choice% == 2 goto :NextStep
-)
+set /p destVol=Please specify the OLD OS volume letter only: 
 
-if %choice% == 1 goto :export
-if %choice% == 2 goto :import
+CALL :UpCase destVol
+
+@echo.
+set /p confirm=Confirm drivers will be installed on %destVol%: (Y/N) 
+
+if NOT %confirm% == Y (
+	if NOT %confirm% == y goto begin
+) 
 
 :export
 @echo -------------------------------------------------------------------------------
@@ -44,12 +44,10 @@ if %choice% == 2 goto :import
 timeout /nobreak 1 > NUL
 @echo Creating destination folder at %cd%\Drivers\
 timeout /nobreak 1 > NUL
-@echo.
 if exist %cd%\Drivers (
 	@echo.
 	@echo Removing existing drivers. This process may take a few minutes...
 	rmdir /s /q %cd%\Drivers > nul
-	@echo.
 	@echo Done!
 )
 if exist %cd%\Drivers (
@@ -65,39 +63,25 @@ timeout /nobreak 1 > NUL
 @echo Exporting drivers...
 
 DISM /online /export-driver /destination:%cd%\Drivers
-
-@echo -------------------------------------------------------------------------------
 @echo.
-@echo Export completed! See above log for details.
-set /p reboot=Press Enter to shut down.
-shutdown /s -t 0
-goto :end
 
+@echo Export complete!
 
 :import
 @echo -------------------------------------------------------------------------------
 @echo Beginning import process.
 @echo.
+timeout /nobreak 1 > NUL
 
-set /p destVol=Please specify the TARGET volume drive letter: 
-
-CALL :UpCase destVol
-
-@echo.
-set /p confirm=Confirm drivers will be installed on %destVol%: (Y/N) 
-
-if NOT %confirm% == Y (
-	if NOT %confirm% == y goto begin
-) 
-
-@echo.
 @echo Installing drivers from %cd%\Drivers...
+timeout /nobreak 1 > NUL
 
 DISM /Image:%destVol%:\ /Add-Driver /Driver:%cd%\Drivers /Recurse
-
-@echo -------------------------------------------------------------------------------
 @echo.
-@echo Installation completed! See above log for details.
+
+@echo Installation complete!
+@echo -------------------------------------------------------------------------------
+
 
 goto end
 
@@ -108,8 +92,10 @@ call set %~1=%%%~1:%%~a%%
 )
 goto :eof
 
-
 :end
 @echo -------------------------------------------------------------------------------
-pause
+@echo.
+@echo Drivers imported from current OS to target OS! System is ready to clone.
+set /p reboot=Press Enter to shut down.
+shutdown /s -t 0
 	
