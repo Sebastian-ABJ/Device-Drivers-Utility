@@ -3,7 +3,7 @@ cls
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
 @echo	---        		   Device Drivers Utility		       ---
-@echo	---          		  	(Ver. 2.0.0)           	       	       ---
+@echo	---          		  	(Ver. 2.0.2)           	       	       ---
 @echo	--------------------------------------------------------------------------
 @echo	--------------------------------------------------------------------------
 @echo	---   This software is licensed under the Mozilla Public License 2.0   ---
@@ -27,8 +27,8 @@ fltmc 1>nul 2>nul || (
 :begin
 wmic logicaldisk get name,volumename,filesystem
 
-set /p destVol=Please specify the OLD OS volume letter only: 
-
+set /p destVolInput=Please specify the OLD OS volume letter: 
+set destVol=%destVolInput:~0,1%
 CALL :UpCase destVol
 
 @echo.
